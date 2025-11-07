@@ -225,7 +225,6 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
                     }
 
                     system_status += "+------------------------------------------------------+\n\n";
-                    system_status += "+------------------------------------------------------+\n\n";
                 }
             }
 
