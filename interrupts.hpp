@@ -463,20 +463,37 @@ unsigned int get_next_pid(std::vector<PCB> pcb_queue) {
  *  returns partition number (1-6), or -1 if none available
  */
 int find_available_partition(unsigned int size, std::vector<PCB> pcb_queue) {
+    // First pass: find exact match (best fit)
     for (size_t i = 0; i < 6; i++) {
-        if (memory[i].size >= size) {
-            // Check if partition is free (not in use by any PCB)
-            bool partition_free = true;
-            for (const auto& pcb : pcb_queue) {
-                if (pcb.partition_number == (int)(i + 1)) {
-                    partition_free = false;
-                    break;
-                }
-            }
-            if (partition_free) {
-                return i + 1;  // Return partition number (1-indexed)
-            }
+        if (memory[i].size == size && memory[i].code == "empty") {
+            return i + 1;
         }
     }
-    return -1;  // No available partition
+    
+    // Second pass: find next available partition larger than size
+    int best_partition = -1;
+    unsigned int best_size = 99999; // Arbitrary large number
+    for (size_t i = 0; i < 6; i++) {
+        if (memory[i].size >= size && memory[i].code == "empty" && memory[i].size < best_size) {
+            best_partition = i + 1;
+            best_size = memory[i].size;
+        }
+    }
+    return best_partition;
+}
+
+/**
+ *  Find program size from external files
+ *  prog_name: the name of the program
+ *  ext_files: vector of external_file structs
+ * 
+ *  returns size of program, or 0 if not found
+ */
+unsigned int get_program_size(const std::string& prog_name, const std::vector<external_file>& ext_files) {
+    for (const auto& file : ext_files) {
+        if (file.program_name == prog_name) {
+            return file.size;
+        }
+    }
+    return 0;  // Program not found 
 }
